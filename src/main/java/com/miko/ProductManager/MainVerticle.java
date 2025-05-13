@@ -19,19 +19,11 @@ public class MainVerticle extends AbstractVerticle {
   @Override
   public void start(Promise<Void> startPromise) {
 
-    MySQLConnectOptions connectOptions = new MySQLConnectOptions()
-      .setHost("localhost")
-      .setPort(3306)
-      .setDatabase("order_manager")
-      .setUser("appuser")
-      .setPassword("Password123!");
-
     PoolOptions pool = new PoolOptions().setMaxSize(5);
 
-    client = MySQLPool.pool(vertx,connectOptions,pool);
+    client = MySQLPool.pool(vertx,getConnectionDetails(),pool);
 
     HttpServer server = vertx.createHttpServer();
-
 
     Router router = Router.router(vertx);
 
@@ -53,7 +45,7 @@ public class MainVerticle extends AbstractVerticle {
       } else {
         JsonObject response = new JsonObject();
         response.put("errorCode" , "DB-500");
-        response.put("errorMessage" , "Could not recieve data");
+        response.put("errorMessage" , "Asnyc Database call failed");
         context.response().setStatusCode(500).end(response.encodePrettily());
       }
     }));
@@ -62,4 +54,12 @@ public class MainVerticle extends AbstractVerticle {
     System.out.println("Server started on port : "+server.actualPort());
   }
 
+  private MySQLConnectOptions getConnectionDetails() {
+    return new MySQLConnectOptions()
+      .setHost("localhost")
+      .setPort(3306)
+      .setDatabase("order_manager")
+      .setUser("appuser")
+      .setPassword("Password123!");
+  }
 }
